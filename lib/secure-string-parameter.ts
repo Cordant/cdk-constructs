@@ -1,12 +1,11 @@
 import {Construct} from 'constructs';
 import {RemovalPolicy} from 'aws-cdk-lib';
-import {Key} from 'aws-cdk-lib/aws-kms';
 import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from 'aws-cdk-lib/custom-resources';
 
 export interface SecureStringParameterProps {
   parameterName: string;
   value: string;
-  key: Key,
+  keyId: string,
   removalPolicy?: RemovalPolicy;
 }
 
@@ -56,7 +55,7 @@ export class SecureStringParameter extends Construct {
           Name: props.parameterName,
           Value: props.value,
           Type: 'SecureString',
-          KeyId: props.key.keyId,
+          KeyId: props.keyId,
         },
       },
       onDelete: {
@@ -73,7 +72,7 @@ export class SecureStringParameter extends Construct {
           Name: props.parameterName,
           Value: props.value,
           Type: 'SecureString',
-          KeyId: props.key.keyId,
+          KeyId: props.keyId,
           Overwrite: true,
         },
       },
