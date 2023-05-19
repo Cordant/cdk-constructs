@@ -1,14 +1,15 @@
 {
-  "name": "cdk-constructs",
+  "name": "@cordant/cdk-constructs",
   "version": "0.1.0",
+  "main": "bin/index.js",
   "bin": {
-    "cdk-constructs": "bin/cdk-constructs.js"
+    "cdk-constructs": "bin/index.js"
   },
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
-    "test": "jest",
-    "cdk": "cdk"
+    "build": "npx tsc",
+    "watch": "npx tsc -w",
+    "test": "npx jest",
+    "cdk": "npx cdk"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
@@ -23,5 +24,20 @@
     "aws-cdk-lib": "2.78.0",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.21"
-  }
+  },
+  "description": "This is a blank project for CDK development with TypeScript.",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cordant/cdk-constructs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cordant/cdk-constructs/issues"
+  },
+  "homepage": "https://github.com/Cordant/cdk-constructs#readme"
 }
