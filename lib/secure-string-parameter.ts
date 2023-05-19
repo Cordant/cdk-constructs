@@ -57,6 +57,7 @@ export class SecureStringParameter extends Construct {
           Type: 'SecureString',
           KeyId: props.keyId,
         },
+        physicalResourceId: PhysicalResourceId.of(Date.now().toString()),
       },
       onDelete: {
         service: 'SSM',
