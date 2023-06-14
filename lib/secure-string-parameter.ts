@@ -1,6 +1,7 @@
 import {Construct} from 'constructs';
-import {RemovalPolicy} from 'aws-cdk-lib';
+import {RemovalPolicy, Stack} from 'aws-cdk-lib';
 import {AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId} from 'aws-cdk-lib/custom-resources';
+import {PolicyStatement} from 'aws-cdk-lib/aws-iam';
 
 export interface SecureStringParameterProps {
   parameterName: string;
@@ -17,6 +18,7 @@ export class SecureStringParameter extends Construct {
    * Returns the decrypted value for the latest version of the secure string parameter.
    */
   static valueForSecureStringParameter(scope: Construct, id: string, parameterName: string): string {
+    const stack = Stack.of(scope);
     const resource = new AwsCustomResource(scope, `${id}GetParameter`, {
       onCreate: {
         service: 'SSM',
@@ -36,9 +38,24 @@ export class SecureStringParameter extends Construct {
         },
         physicalResourceId: PhysicalResourceId.of(Date.now().toString()), // Update physical id to always fetch the latest version
       },
-      policy: AwsCustomResourcePolicy.fromSdkCalls({
-        resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
+      policy: AwsCustomResourcePolicy.fromStatements([
+        new PolicyStatement({
+          actions: [
+            'ssm:GetParameter',
+          ],
+          resources: [
+            `arn:aws:ssm:${stack.region}:${stack.account}:parameter${parameterName}`,
+          ],
+        }),
+        new PolicyStatement({
+          actions: [
+            'kms:Decrypt',
+          ],
+          resources: [
+            `arn:aws:kms:${stack.region}:${stack.account}:key/*`,
+          ],
+        }),
+      ]),
     });
     return resource.getResponseField('Parameter.Value');
   }
@@ -46,6 +63,8 @@ export class SecureStringParameter extends Construct {
 
   constructor(scope: Construct, id: string, props: SecureStringParameterProps) {
     super(scope, id);
+
+    const stack = Stack.of(scope);
 
     new AwsCustomResource(this, `${id}CustomResource`, {
       onCreate: {
@@ -77,9 +96,25 @@ export class SecureStringParameter extends Construct {
           Overwrite: true,
         },
       },
-      policy: AwsCustomResourcePolicy.fromSdkCalls({
-        resources: AwsCustomResourcePolicy.ANY_RESOURCE,
-      }),
+      policy: AwsCustomResourcePolicy.fromStatements([
+        new PolicyStatement({
+          actions: [
+            'ssm:PutParameter',
+            'ssm:DeleteParameter',
+          ],
+          resources: [
+            `arn:aws:ssm:${stack.region}:${stack.account}:parameter${props.parameterName}`,
+          ],
+        }),
+        new PolicyStatement({
+          actions: [
+            'kms:Encrypt',
+          ],
+          resources: [
+            `arn:aws:kms:${stack.region}:${stack.account}:key/${props.keyId}`,
+          ],
+        }),
+      ]),
       removalPolicy: props.removalPolicy ?? RemovalPolicy.DESTROY,
     });
   }

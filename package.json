@@ -9,7 +9,8 @@
     "build": "npx tsc",
     "watch": "npx tsc -w",
     "test": "npx jest",
-    "cdk": "npx cdk"
+    "cdk": "npx cdk",
+    "publish": "npm run build && npm publish --access public"
   },
   "devDependencies": {
     "@types/jest": "^29.4.0",
